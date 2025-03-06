@@ -1,12 +1,46 @@
+### TODO list
+
+- Master VM
+
+0. install package utility
+
+1. config network(dhcp -> static address)
+
+  - ip address: 10.100.0.104
+
+  - netmask: 24
+
+  - gateway: 10.100.0.1
+
+  - dns: 10.100.0.1
+
+  - To create and write
+
+    -  `/etc/netplan/50-cloud-init.yml`
+
+    - `/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg`
+
+    => see more netplan config
+  
+2. change host name `/etc/hostname` see netplan config
+
+3. change hosts `/etc/hosts` see netplan config
+
+
+
+`script.sh`
+```bash
+```
+
 ### Utility package
 
 ```bash
 # see all stat memory, distributor, kernel, VM etc
-sudo apt update
-sudo apt install -y inxi neofetch
+sudo apt-get update
+sudo apt-get install -y inxi neofetch
 
 neofetch
-inxi --system --machine -- cpu -- network --disk --info
+inxi --system --machine --cpu --network --disk --info
 ```
 
 
@@ -37,6 +71,15 @@ network:
           via: 10.100.0.1
       nameservers:
         addresses: [10.100.0.1] #dns
+```
+
+- test using ping
+
+```bash
+ping -c 4 www.google.com
+# or
+ping -c 4 8.8.8.8 
+
 ```
 
 ### hosts config
