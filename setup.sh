@@ -23,7 +23,7 @@ network:
 EOF
 
 chmod 600 /etc/netplan/01-netcfg.yaml
-chmod 600 /etc/netplan/50-vagrant.yaml
+# chmod 600 /etc/netplan/50-vagrant.yaml
 
 
 sudo netplan apply
