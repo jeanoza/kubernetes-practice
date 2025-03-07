@@ -11,11 +11,12 @@ Vagrant.configure("2") do |config|
       vb.memory = 2048
     end
 
-    # 네트워크 설정 (NAT + Private Network)
-    master.vm.network "private_network", type: "dhcp", virtualbox__nat_network: "k8s Network"
+    # Network configuration (need or not?)
+    # This is not work but i have ssh by default
+    # master.vm.network "private_network", type: "dhcp", virtualbox__nat_network: "k8s Network"
 
 
-    # setup.sh 스크립트 실행
+    # exec setup.sh
     master.vm.provision "shell", path: "setup.sh"
   end
 end

@@ -93,6 +93,18 @@ ping -c 4 8.8.8.8
 
 ```
 
+
+### VirtualBox config
+
+- Idem host config and put port 22
+
+- Define nat network(k8s Network): `10.100.0.0/24`
+
+- Then set vm network config
+
+- But I don't know if it's necessary. (at this moment network between vm is done using ssh by default)
+
+
 ### Ref.
 
 - [Vagrant + QEMU in Mac silicon](https://joachim8675309.medium.com/vagrant-with-macbook-mx-arm64-0f590fd7e48a)
