@@ -43,4 +43,18 @@ Vagrant.configure("2") do |config|
     # exec node.sh
     node1.vm.provision "shell", path: "./scripts/node.sh", args: [MASTER_IP]
   end 
+
+  config.vm.define NODE2_HOSTNAME do |node2|
+    node2.vm.hostname = NODE2_HOSTNAME
+
+    node2.vm.provider "virtualbox" do |vb|
+      vb.name = NODE2_HOSTNAME
+      vb.cpus = CPUS
+      vb.memory = MEMORY
+    end
+
+    node2.vm.network "private_network", ip: NODE2_IP
+    # exec node.sh
+    node2.vm.provision "shell", path: "./scripts/node.sh", args: [MASTER_IP]
+  end 
 end
