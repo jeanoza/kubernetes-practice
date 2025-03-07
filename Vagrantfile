@@ -1,22 +1,46 @@
+DEFAULT_IP = "192.168.56"
+MASTER_IP = "#{DEFAULT_IP}.104"
+NODE1_IP = "#{DEFAULT_IP}.101"
+NODE2_IP = "#{DEFAULT_IP}.102"
+
+MASTER_HOSTNAME = "k8s-master"
+NODE1_HOSTNAME = "k8s-node1"
+NODE2_HOSTNAME = "k8s-node2"
+
+MEMORY = 2048
+CPUS = 2
+
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/jammy64"
   config.vbguest.auto_update = false
 
-  config.vm.define "k8s-master" do |master|
-    master.vm.hostname = "k8s-master"
+  config.vm.define MASTER_HOSTNAME do |master|
+    master.vm.hostname = MASTER_HOSTNAME
 
     master.vm.provider "virtualbox" do |vb|
-      vb.name = "k8s-master"
-      vb.cpus = 2
-      vb.memory = 2048
+      vb.name = MASTER_HOSTNAME
+      vb.cpus = CPUS
+      vb.memory = MEMORY
     end
 
-    # Network configuration (need or not?)
-    # This is not work but i have ssh by default
-    # master.vm.network "private_network", type: "dhcp", virtualbox__nat_network: "k8s Network"
+    master.vm.network "private_network", ip: MASTER_IP
 
 
-    # exec setup.sh
-    master.vm.provision "shell", path: "setup.sh"
+    # exec master.sh
+    master.vm.provision "shell", path: "./scripts/master.sh", args: [MASTER_IP, NODE1_IP, NODE2_IP]
   end
+
+  config.vm.define NODE1_HOSTNAME do |node1|
+    node1.vm.hostname = NODE1_HOSTNAME
+
+    node1.vm.provider "virtualbox" do |vb|
+      vb.name = NODE1_HOSTNAME
+      vb.cpus = CPUS
+      vb.memory = MEMORY
+    end
+
+    node1.vm.network "private_network", ip: NODE1_IP
+    # exec node.sh
+    node1.vm.provision "shell", path: "./scripts/node.sh", args: [MASTER_IP]
+  end 
 end
