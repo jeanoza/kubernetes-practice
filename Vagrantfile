@@ -3,9 +3,9 @@ MASTER_IP = "#{DEFAULT_IP}.104"
 NODE1_IP = "#{DEFAULT_IP}.101"
 NODE2_IP = "#{DEFAULT_IP}.102"
 
-MASTER_HOSTNAME = "k8s-master"
-NODE1_HOSTNAME = "k8s-node1"
-NODE2_HOSTNAME = "k8s-node2"
+MASTER_HOSTNAME = "master"
+NODE1_HOSTNAME = "node1"
+NODE2_HOSTNAME = "node2"
 
 MEMORY = 2048
 CPUS = 2
@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
     master.vm.hostname = MASTER_HOSTNAME
 
     master.vm.provider "virtualbox" do |vb|
-      vb.name = MASTER_HOSTNAME
+      vb.name = "k8s-#{MASTER_HOSTNAME}"
       vb.cpus = CPUS
       vb.memory = MEMORY
     end
@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
     node1.vm.hostname = NODE1_HOSTNAME
 
     node1.vm.provider "virtualbox" do |vb|
-      vb.name = NODE1_HOSTNAME
+      vb.name = "k8s-#{NODE1_HOSTNAME}"
       vb.cpus = CPUS
       vb.memory = MEMORY
     end
@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
     node2.vm.hostname = NODE2_HOSTNAME
 
     node2.vm.provider "virtualbox" do |vb|
-      vb.name = NODE2_HOSTNAME
+      vb.name = "k8s-#{NODE2_HOSTNAME}"
       vb.cpus = CPUS
       vb.memory = MEMORY
     end

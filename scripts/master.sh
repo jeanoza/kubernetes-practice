@@ -16,8 +16,8 @@ echo \
 sudo apt-get update -y
 sudo apt-get install -y inxi neofetch docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-echo "[TASK 2] hostname and hosts file setting"
-echo "master.example.com" | sudo tee /etc/hostname
+echo "[TASK 2] hosts file setting"
+# echo "master.example.com" | sudo tee /etc/hostname
 
 echo "127.0.0.1   localhost" | sudo tee /etc/hosts
 echo "$1 master.example.com master" | sudo tee -a /etc/hosts
