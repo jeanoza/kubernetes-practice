@@ -51,6 +51,7 @@ rm -rf /vagrant/join_command.sh
 kubeadm token create --print-join-command > /vagrant/join_command.sh
 
 echo "[TASK 4-3] apply network plugin"
+export KUBECONFIG=/etc/kubernetes/admin.conf
 kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
 
 echo "[TASK 4-4] config in order to use k8s without sudo"
