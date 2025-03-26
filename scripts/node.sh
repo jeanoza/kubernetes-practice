@@ -3,26 +3,46 @@
 # $1: master ip
 
 echo "[TASK 1] update & install utility packages"
-# docker package keyring
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
 sudo apt-get update -y
-sudo apt-get install -y inxi neofetch docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y inxi neofetch containerd
 
 echo "[TASK 2] hosts file setting"
-# echo "node1.example.com" | sudo tee /etc/hostname
-
 echo "127.0.0.1   localhost" | sudo tee /etc/hosts
 echo "$1 master.example.com master" | sudo tee -a /etc/hosts
+
 chmod 600 /etc/netplan/50-vagrant.yaml # to avoid warning too open
 
-echo "[TASK 3] Docker group config"
-sudo usermod -aG docker vagrant # add current user in docker Group
-newgrp docker # apply changed group
+echo "[TASK 3] configuration before install k8s"
 
-echo "[TASK 4] Configuration done"
+echo "[TASK 3-1] ip fowarding"
+sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+sudo sysctl -p
+
+echo "[TASK 3-2] desactivate swap memory"
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+echo "[TASK 3-3] config containerd"
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml >/dev/null
+sudo sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+sudo systemctl restart containerd
+sudo systemctl enable containerd
+
+
+echo "[TASK 4] k8s"
+
+echo "[TASK 4-1] install and hold"
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-mark hold kubelet kubeadm kubectl
+
+echo "[TASK 4-2] join to master(to implement) using sudo"
+echo "$(whoami)" >> /vagrant/whoami.txt
+if [ -f /vagrant/join_command.sh ]; then
+    bash /vagrant/join_command.sh
+fi
+
+echo "[TASK 5] Configuration done"
