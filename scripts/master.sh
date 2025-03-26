@@ -68,5 +68,10 @@ cp -i /etc/kubernetes/admin.conf "$KUBE_CONFIG"
 chown "$(id -u vagrant):$(id -g vagrant)" "$KUBE_CONFIG"
 chmod 600 "$KUBE_CONFIG"
 
+echo "[TASK 4-5] kubectl autocompletion"
+echo "source <(kubectl completion bash)" >> "$VAGRANT_HOME/.bashrc"
+echo "source <(kubeadm completion bash)" >> "$VAGRANT_HOME/.bashrc" 
+source "$VAGRANT_HOME/.bashrc"
+
 
 echo "[TASK 5] Configuration done"
