@@ -1,12 +1,6 @@
 DEFAULT_IP = "192.168.56"
 MASTER_IP = "#{DEFAULT_IP}.104"
-NODE1_IP = "#{DEFAULT_IP}.101"
-NODE2_IP = "#{DEFAULT_IP}.102"
-
-MASTER_HOSTNAME = "master"
-NODE1_HOSTNAME = "node1"
-NODE2_HOSTNAME = "node2"
-
+NODE_COUNT = 2
 MEMORY = 2048
 CPUS = 2
 
@@ -14,47 +8,31 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/jammy64"
   config.vbguest.auto_update = false
 
-  config.vm.define MASTER_HOSTNAME do |master|
-    master.vm.hostname = MASTER_HOSTNAME
+  # define worker ips
+  worker_ips = (1..NODE_COUNT).map { |i| "#{DEFAULT_IP}.#{100 + i}" }
 
-    master.vm.provider "virtualbox" do |vb|
-      vb.name = "k8s-#{MASTER_HOSTNAME}"
-      vb.cpus = CPUS
-      vb.memory = MEMORY
-    end
-
+  config.vm.define "master" do |master|
+    master.vm.hostname = "master"
     master.vm.network "private_network", ip: MASTER_IP
-
-
-    # exec master.sh
-    master.vm.provision "shell", path: "./scripts/master.sh", args: [MASTER_IP, NODE1_IP, NODE2_IP]
+    master.vm.provider "virtualbox" do |vb|
+      vb.name = "k8s-master"
+      vb.memory = MEMORY
+      vb.cpus = CPUS
+    end
+    master.vm.provision "shell", path: "./scripts/master.sh", args: [MASTER_IP, *worker_ips]
   end
 
-  config.vm.define NODE1_HOSTNAME do |node1|
-    node1.vm.hostname = NODE1_HOSTNAME
-
-    node1.vm.provider "virtualbox" do |vb|
-      vb.name = "k8s-#{NODE1_HOSTNAME}"
-      vb.cpus = CPUS
-      vb.memory = MEMORY
+  # create worker nodes dynamically
+  (1..NODE_COUNT).each do |i|
+    config.vm.define "node#{i}" do |node|
+      node.vm.hostname = "node#{i}"
+      node.vm.network "private_network", ip: worker_ips[i-1]
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = "k8s-node#{i}"
+        vb.memory = MEMORY
+        vb.cpus = CPUS
+      end
+      node.vm.provision "shell", path: "./scripts/node.sh", args: [MASTER_IP]
     end
-
-    node1.vm.network "private_network", ip: NODE1_IP
-    # exec node.sh
-    node1.vm.provision "shell", path: "./scripts/node.sh", args: [MASTER_IP]
-  end 
-
-  config.vm.define NODE2_HOSTNAME do |node2|
-    node2.vm.hostname = NODE2_HOSTNAME
-
-    node2.vm.provider "virtualbox" do |vb|
-      vb.name = "k8s-#{NODE2_HOSTNAME}"
-      vb.cpus = CPUS
-      vb.memory = MEMORY
-    end
-
-    node2.vm.network "private_network", ip: NODE2_IP
-    # exec node.sh
-    node2.vm.provision "shell", path: "./scripts/node.sh", args: [MASTER_IP]
-  end 
+  end
 end
