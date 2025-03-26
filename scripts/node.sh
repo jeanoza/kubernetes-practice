@@ -26,6 +26,10 @@ echo "[TASK 3-3] config containerd"
 mkdir -p /etc/containerd
 containerd config default | tee /etc/containerd/config.toml >/dev/null
 sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+
+# This is for override version :need or not?
+sed -i 's|sandbox_image = ".*"|sandbox_image = "registry.k8s.io/pause:3.10"|g' /etc/containerd/config.toml
+
 systemctl restart containerd
 systemctl enable containerd
 

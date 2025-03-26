@@ -31,6 +31,10 @@ echo "[TASK 3-3] config containerd"
 mkdir -p /etc/containerd
 containerd config default | tee /etc/containerd/config.toml >/dev/null
 sed -i 's/SystemdCgroup = false/SystemdCgroup = true/g' /etc/containerd/config.toml
+
+# This is for override version :need or not?
+sed -i 's|sandbox_image = ".*"|sandbox_image = "registry.k8s.io/pause:3.10"|g' /etc/containerd/config.toml
+
 systemctl restart containerd
 systemctl enable containerd
 
@@ -46,13 +50,15 @@ apt-get install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 
 echo "[TASK 4-2] initialize k8s cluster and create join command to use on worker"
+# weave network
 kubeadm init --apiserver-advertise-address=$1
 rm -rf /vagrant/join_command.sh
 kubeadm token create --print-join-command > /vagrant/join_command.sh
 
 echo "[TASK 4-3] apply network plugin"
 export KUBECONFIG=/etc/kubernetes/admin.conf
-kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+# weave network
+kubectl apply -f "https://reweave.azurewebsites.net/k8s/v1.32/net.yaml"
 
 echo "[TASK 4-4] config in order to use k8s without sudo"
 VAGRANT_HOME="/home/vagrant"

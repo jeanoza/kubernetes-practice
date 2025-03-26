@@ -44,44 +44,6 @@ inxi --system --machine --cpu --network --disk --info
 ```
 
 
-### netplan config
-
-- Attention: Don't touch `/etc/netplan/50-cloud-init.yaml` generated on install ubuntu
-
-- disable default network config
-
-```bash
-# /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
-
-network: {config: disabled}
-```
-
-- new config
-
-```bash
-# /etc/netplan/01-netcfg.yaml
-network:
-  version: 2
-  ethernets:
-    eth0:
-      dhcp4: no # put static
-      addresses: [10.100.0.104/24]
-      routes:
-        - to: 0.0.0.0/0
-          via: 10.100.0.1
-      nameservers:
-        addresses: [10.100.0.1] #dns
-```
-
-- test using ping
-
-```bash
-ping -c 4 www.google.com
-# or
-ping -c 4 8.8.8.8 
-
-```
-
 ### hosts config
 
 ```bash
@@ -144,6 +106,25 @@ ping -c 4 8.8.8.8
   docker run hello-world # verify if it's applied
   
   ```
+
+### K8S Commands
+
+1. nodes status
+
+```bash
+kubectl get nodes
+```
+
+
+2. pods status
+
+```bash
+# all pods
+kubectl get pods -A
+
+# define name space to see
+kubectl get pods -n kube-system
+```
 
 
 ### Ref.
