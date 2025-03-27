@@ -58,7 +58,9 @@ kubeadm token create --print-join-command > /vagrant/join_command.sh
 echo "[TASK 4-3] apply network plugin"
 export KUBECONFIG=/etc/kubernetes/admin.conf
 # weave network
-kubectl apply -f "https://reweave.azurewebsites.net/k8s/v1.32/net.yaml"
+# kubectl apply -f "https://reweave.azurewebsites.net/k8s/v1.32/net.yaml"
+# calico network
+kubectl apply -f "https://docs.projectcalico.org/manifests/calico.yaml"
 
 echo "[TASK 4-4] config in order to use k8s without sudo"
 VAGRANT_HOME="/home/vagrant"

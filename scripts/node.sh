@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # $1: master ip
+MASTER_IP=$1
+NODE_IP=$(hostname -I | awk '{print $2}')
+
 
 echo "[TASK 1] update & install utility packages"
 apt-get update -y
@@ -8,7 +11,7 @@ apt-get install -y inxi neofetch containerd
 
 echo "[TASK 2] hosts file setting"
 echo "127.0.0.1   localhost" | tee /etc/hosts
-echo "$1 master.example.com master" | tee -a /etc/hosts
+echo "$MASTER_IP master.example.com master" | tee -a /etc/hosts
 
 chmod 600 /etc/netplan/50-vagrant.yaml # to avoid warning too open
 
@@ -44,7 +47,9 @@ apt-get install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 
 echo "[TASK 4-2] join to master"
+
 if [ -f /vagrant/join_command.sh ]; then
+    echo "KUBELET_EXTRA_ARGS=--node-ip=$NODE_IP" | sudo tee /etc/default/kubelet
     bash /vagrant/join_command.sh
 fi
 

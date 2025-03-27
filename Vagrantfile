@@ -26,7 +26,8 @@ Vagrant.configure("2") do |config|
   (1..NODE_COUNT).each do |i|
     config.vm.define "node#{i}" do |node|
       node.vm.hostname = "node#{i}"
-      node.vm.network "private_network", ip: worker_ips[i-1]
+      node_ip = worker_ips[i-1]
+      node.vm.network "private_network", ip: node_ip
       node.vm.provider "virtualbox" do |vb|
         vb.name = "k8s-node#{i}"
         vb.memory = MEMORY
