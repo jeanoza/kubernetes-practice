@@ -32,7 +32,7 @@ inxi --system --machine --cpu --network --disk --info
 #### kubectl
 
 ```bash
-kubectl [command] [type] [name] [flag]
+kubectl <command> [type] [name] <flag>
 ```
 
 ```bash
@@ -80,6 +80,31 @@ kubectl rollout restart daemonset -n kube-system weave-net
 
 # log flannel pods
 kubectl logs -n kube-flannel -l app=flannel
+```
+
+5. etc
+
+```bash
+# create a pod using nginx image to 80 port
+kubectl run webserver --image=nginx:1.14 --port 80
+kubectl run webserver --image=nginx:1.14 --port 80 --dry-run # verify if it's possible to create
+kubectl run webserver --image=nginx:1.14 --port 80 --dry-run -o yaml #save as yaml (stdout)
+
+# create a pod using yaml
+kubectl create -f webserver-pod.yaml 
+
+# create deploy 3 pods
+kubectl create deployment mainui --image=httpd --replicas=3
+
+# enter in to the pod(webserver)
+kubectl exec webserver -it -- sh
+
+# edit api active -> updating yaml
+kubectl edit deployments.apps 
+
+# delete
+kubectl delete pod webserver
+kubectl delete deployments.apps mainui
 ```
 
 
