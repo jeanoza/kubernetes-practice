@@ -7,7 +7,7 @@ NODE_IP=$(hostname -I | awk '{print $2}')
 
 echo "[TASK 1] update & install utility packages"
 apt-get update -y
-apt-get install -y inxi neofetch containerd
+apt-get install -y inxi neofetch containerd net-tools
 
 echo "[TASK 2] hosts file setting"
 echo "127.0.0.1   localhost" | tee /etc/hosts
@@ -18,8 +18,14 @@ chmod 600 /etc/netplan/50-vagrant.yaml # to avoid warning too open
 echo "[TASK 3] configuration before install k8s"
 
 echo "[TASK 3-1] ip fowarding"
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-sysctl -p
+modprobe overlay
+modprobe br_netfilter
+tee /etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+sysctl --system
 
 echo "[TASK 3-2] desactivate swap memory"
 swapoff -a

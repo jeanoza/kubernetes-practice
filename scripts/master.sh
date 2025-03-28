@@ -6,7 +6,7 @@
 
 echo "[TASK 1] update & install utility packages"
 apt-get update -y
-apt-get install -y inxi neofetch containerd
+apt-get install -y inxi neofetch containerd net-tools
 
 echo "[TASK 2] hosts file setting"
 echo "127.0.0.1   localhost" | tee /etc/hosts
@@ -20,8 +20,14 @@ chmod 600 /etc/netplan/50-vagrant.yaml # to avoid warning too open
 echo "[TASK 3] configuration before install k8s"
 
 echo "[TASK 3-1] ip fowarding"
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-sysctl -p
+modprobe overlay
+modprobe br_netfilter
+tee /etc/sysctl.d/kubernetes.conf<<EOF
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+EOF
+sysctl --system
 
 echo "[TASK 3-2] desactivate swap memory"
 swapoff -a
@@ -39,7 +45,6 @@ systemctl restart containerd
 systemctl enable containerd
 
 
-
 echo "[TASK 4] k8s"
 
 echo "[TASK 4-1] install and hold"
@@ -50,17 +55,15 @@ apt-get install -y kubelet kubeadm kubectl
 apt-mark hold kubelet kubeadm kubectl
 
 echo "[TASK 4-2] initialize k8s cluster and create join command to use on worker"
-# weave network
-kubeadm init --apiserver-advertise-address=$1
+kubeadm init --apiserver-advertise-address=$1 \
+    --pod-network-cidr=10.244.0.0/16 \
+    # --ignore-preflight-errors=NumCPU
 rm -rf /vagrant/join_command.sh
 kubeadm token create --print-join-command > /vagrant/join_command.sh
 
 echo "[TASK 4-3] apply network plugin"
 export KUBECONFIG=/etc/kubernetes/admin.conf
-# weave network
-# kubectl apply -f "https://reweave.azurewebsites.net/k8s/v1.32/net.yaml"
-# calico network
-kubectl apply -f "https://docs.projectcalico.org/manifests/calico.yaml"
+kubectl apply -f /vagrant/kube-flannel.yml
 
 echo "[TASK 4-4] config in order to use k8s without sudo"
 VAGRANT_HOME="/home/vagrant"
@@ -69,6 +72,7 @@ mkdir -p "$VAGRANT_HOME/.kube"
 cp -i /etc/kubernetes/admin.conf "$KUBE_CONFIG"
 chown "$(id -u vagrant):$(id -g vagrant)" "$KUBE_CONFIG"
 chmod 600 "$KUBE_CONFIG"
+
 
 echo "[TASK 4-5] kubectl autocompletion"
 echo "source <(kubectl completion bash)" >> "$VAGRANT_HOME/.bashrc"

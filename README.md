@@ -74,6 +74,15 @@ kubectl describe node master
 - flag
 
 
+```bash
+# restart Weave
+kubectl rollout restart daemonset -n kube-system weave-net
+
+# log flannel pods
+kubectl logs -n kube-flannel -l app=flannel
+```
+
+
 
 ### Ref.
 
