@@ -67,11 +67,13 @@ kubectl apply -f /vagrant/kube-flannel.yml
 
 echo "[TASK 4-4] config in order to use k8s without sudo"
 VAGRANT_HOME="/home/vagrant"
-KUBE_CONFIG="$VAGRANT_HOME/.kube/config"
-mkdir -p "$VAGRANT_HOME/.kube"
+KUBE_DIR="$VAGRANT_HOME/.kube"
+KUBE_CONFIG="$KUBE_DIR/config"
+mkdir -p "$KUBE_DIR"
 cp -i /etc/kubernetes/admin.conf "$KUBE_CONFIG"
-chown "$(id -u vagrant):$(id -g vagrant)" "$KUBE_CONFIG"
-chmod 600 "$KUBE_CONFIG"
+# to avoid permission denied when using kubectl context
+chown "$(id -u vagrant):$(id -g vagrant)" "$KUBE_DIR" 
+chown "$(id -u vagrant):$(id -g vagrant)" "$KUBE_CONFIG" 
 
 
 echo "[TASK 4-5] kubectl autocompletion"

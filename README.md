@@ -105,6 +105,13 @@ kubectl edit deployments.apps
 # delete
 kubectl delete pod webserver
 kubectl delete deployments.apps mainui
+
+# config
+kubectl config --help
+kubectl config view
+# create a context
+kubectl config set-context blue@kubernetes --cluster=kubernetes --user=kubernetes-admin --namespace=blue
+kubectl config use-context blue@kubernetes
 ```
 
 
