@@ -112,6 +112,9 @@ kubectl config view
 # create a context
 kubectl config set-context blue@kubernetes --cluster=kubernetes --user=kubernetes-admin --namespace=blue
 kubectl config use-context blue@kubernetes
+
+# exec enter into a container in pod
+kubectl exec multipod -c nginx-container -it -- bash 
 ```
 
 
