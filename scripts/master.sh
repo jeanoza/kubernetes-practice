@@ -15,11 +15,13 @@ echo "$2 node1.example.com node1" | tee -a /etc/hosts
 echo "$3 node2.example.com node2" | tee -a /etc/hosts
 
 chmod 600 /etc/netplan/50-vagrant.yaml # to avoid warning too open
+netplan apply 
 
 
 echo "[TASK 3] configuration before install k8s"
 
 echo "[TASK 3-1] ip fowarding"
+echo -e "overlay\nbr_netfilter" | tee /etc/modules-load.d/k8s.conf
 modprobe overlay
 modprobe br_netfilter
 tee /etc/sysctl.d/kubernetes.conf<<EOF

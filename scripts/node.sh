@@ -14,10 +14,12 @@ echo "127.0.0.1   localhost" | tee /etc/hosts
 echo "$MASTER_IP master.example.com master" | tee -a /etc/hosts
 
 chmod 600 /etc/netplan/50-vagrant.yaml # to avoid warning too open
+netplan apply 
 
 echo "[TASK 3] configuration before install k8s"
 
 echo "[TASK 3-1] ip fowarding"
+echo -e "overlay\nbr_netfilter" | tee /etc/modules-load.d/k8s.conf
 modprobe overlay
 modprobe br_netfilter
 tee /etc/sysctl.d/kubernetes.conf<<EOF
