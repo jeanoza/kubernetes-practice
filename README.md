@@ -117,6 +117,35 @@ kubectl config use-context blue@kubernetes
 kubectl exec multipod -c nginx-container -it -- bash 
 ```
 
+- `livenessProbe`
+
+```yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: pod-nginx-liveness-2
+  name: pod-nginx-liveness-2
+spec:
+  containers:
+  - image: nginx:1.14
+    name: pod-nginx-liveness-2
+    ports:
+    - containerPort: 80
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+      failureThreshold: 3 # how many fail need to be define as failure
+      periodSeconds: 30 # how much interval seconds for health check?(every 30 s in this case)
+      successThreshold: 1 
+      timeoutSeconds: 3 # how much seconds it will wait(after 3s => fail)
+      initialDelaySeconds: 15 # when start health check(after X s)
+
+```
+
 
 
 ### Ref.
