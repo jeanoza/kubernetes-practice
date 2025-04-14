@@ -119,32 +119,64 @@ kubectl exec multipod -c nginx-container -it -- bash
 
 - `livenessProbe`
 
-```yaml
+  ```yaml
 
-apiVersion: v1
-kind: Pod
-metadata:
-  creationTimestamp: null
-  labels:
-    run: pod-nginx-liveness-2
-  name: pod-nginx-liveness-2
-spec:
-  containers:
-  - image: nginx:1.14
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: null
+    labels:
+      run: pod-nginx-liveness-2
     name: pod-nginx-liveness-2
-    ports:
-    - containerPort: 80
-    livenessProbe:
-      httpGet:
-        path: /
-        port: 80
-      failureThreshold: 3 # how many fail need to be define as failure
-      periodSeconds: 30 # how much interval seconds for health check?(every 30 s in this case)
-      successThreshold: 1 
-      timeoutSeconds: 3 # how much seconds it will wait(after 3s => fail)
-      initialDelaySeconds: 15 # when start health check(after X s)
+  spec:
+    containers:
+    - image: nginx:1.14
+      name: pod-nginx-liveness-2
+      ports:
+      - containerPort: 80
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 80
+        failureThreshold: 3 # how many fail need to be define as failure
+        periodSeconds: 30 # how much interval seconds for health check?(every 30 s in this case)
+        successThreshold: 1 
+        timeoutSeconds: 3 # how much seconds it will wait(after 3s => fail)
+        initialDelaySeconds: 15 # when start health check(after X s)
 
-```
+  ```
+
+- `initContainers`
+
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: myapp-pod
+    labels:
+      app.kubernetes.io/name: MyApp
+  spec:
+    containers:
+    - name: myapp-container
+      image: busybox:1.28
+      command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+    initContainers:
+    - name: init-myservice
+      image: busybox:1.28
+      command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+    - name: init-mydb
+      image: busybox:1.28
+      command: ['sh', '-c', "until nslookup mydb.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for mydb; sleep 2; done"]
+  ```
+
+- `Pause Container`: `infraContainers`
+
+  - When create a pod, pause container(infra container) will be created by default (1 pod - 1 infra container)
+
+  - This container create/manage the infra structure(such as `ip` or `host name`)
+
+
+
 
 
 
