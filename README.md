@@ -190,6 +190,12 @@ kubectl exec multipod -c nginx-container -it -- bash
 
   - when the static pod yaml file is deleted, the static pod will be deleted as well
 
+- `Limit resource`
+
+  - `cpu` and `memory` limit
+
+  - This is to avoid over usage of resource
+
 
 
 
