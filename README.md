@@ -176,6 +176,19 @@ kubectl exec multipod -c nginx-container -it -- bash
   - This container create/manage the infra structure(such as `ip` or `host name`)
 
 
+- `Static Pod(Container)`
+
+  - Different from normal pod, static pod is managed by `kubelet` directly, not by `kube-apiserver`
+
+  ```bash
+  cat /var/lib/kubelet/config.yaml # kubelet config file which contains static pod path
+  ``` 
+
+  - create a static pod in `/etc/kubernetes/manifests` directory(see `kubelet` config file)
+
+  - kublet will check the directory every 10s, if there is a new pod, it will create a static pod
+
+  - when the static pod yaml file is deleted, the static pod will be deleted as well
 
 
 
